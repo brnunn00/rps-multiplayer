@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- J-Query -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!-- Bootstrap CDN-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+    <!-- Local -->
+    <link rel="stylesheet" type="text/css" media="screen" href="./assets/css/style.css">
+    <script src="./assets/js/app.js"></script>
+   
+
+
+
+</head>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-transparent" id="main-nav">
+        
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    Welcome <span id='welcomeName'></span> to Ultimate Rock Paper Scissors!
+                </li>
+            </ul>
+
+      
+    
+</nav>
+<body>
+        
+    <section>
+        <div class="container ">
+            <div class="row">
+                <div class="col-3 tableCol">
+                    <div class="playerSeat" id="p1t1" data-playerId="" data-seatnum="SeatOne">
+                        Click to Join 
+                    </div>
+                    <div class="tableCont" id="tlOne">
+
+                    </div>
+                    <div class="playerSeat" id="p2t1" data-playerId="" data-seatnum="SeatTwo">
+                 Click to Join 
+                    </div>
+                </div>
+                <!-- <div class="col-3 tableCol">
+                    <div class="playerSeat" id="p1t2">
+                        Click to Join <span id='p1t2namedisp'></span>
+                    </div>
+                    <div class="tableCont" id="tlOne">
+
+                    </div>
+                    <div class="playerSeat" id="p2t2">
+                            Click to Join <span id='p2t2namedisp'></span>
+                    </div>
+                </div> -->
+                <div class="col-4 peopleList ml-auto ">
+                    People Watching:
+                    <div class="watcherCont">
+                     <ul id="nameList">
+                         
+                     </ul>
+                    </div>
+                    <label for="nameEnter" id="nameLab">Enter your name!</label>
+                    <input type="text" id="nameEnter"/>
+                    <input type="submit" id="nameSub"/>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</body>
+
+</html>
