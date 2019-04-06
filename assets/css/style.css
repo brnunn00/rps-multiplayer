@@ -11,3 +11,7 @@ border: solid 1px black;
 .playerSeat{
     display: none;
 }
+
+.row{
+margin: 15px;
+}

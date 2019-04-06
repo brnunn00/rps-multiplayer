@@ -9,8 +9,12 @@
     <!-- J-Query -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <!-- Bootstrap CDN-->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
@@ -23,7 +27,7 @@
 
 </head>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-transparent" id="main-nav">
+<nav class="navbar  bg-transparent" id="main-nav">
         
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -41,14 +45,14 @@
     <section>
         <div class="container ">
             <div class="row">
-                <div class="col-3 tableCol">
-                    <div class="playerSeat" id="p1t1" data-playerId="" data-seatnum="SeatOne">
+                <div class="col s3 tableCol">
+                    <div class="playerSeat" id="p1t1" data-playerid="" data-seatnum="SeatOne">
                         Click to Join 
                     </div>
                     <div class="tableCont" id="tlOne">
 
                     </div>
-                    <div class="playerSeat" id="p2t1" data-playerId="" data-seatnum="SeatTwo">
+                    <div class="playerSeat" id="p2t1" data-playerid="" data-seatnum="SeatTwo">
                  Click to Join 
                     </div>
                 </div>
@@ -63,7 +67,7 @@
                             Click to Join <span id='p2t2namedisp'></span>
                     </div>
                 </div> -->
-                <div class="col-4 peopleList ml-auto ">
+                <div class="col s4 offset-s5 peopleList ml-auto ">
                     People Watching:
                     <div class="watcherCont">
                      <ul id="nameList">
