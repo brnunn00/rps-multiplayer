@@ -4,13 +4,29 @@
 }
 
 .tableCont,.watcherCont{
-height: 200px;
+height: 100%;
 width: 100%;
 border: solid 1px black;
 }
+#gameStatus{
+font-size: 28px;
+font-weight: bold;
+}
+.contentBlock{
+    display: inline-block;
+   
+}
+.roundBlock{
+    height: 100%;
 
+}
+
+.statusTopCont{
+    margin-bottom: 50px;
+}
 .playerSeat{
     display: none;
+    text-align: center;
 }
 
 .row{
@@ -20,11 +36,24 @@ margin: 15px;
 .statCont{
     text-align: center;
 }
+.buttonPanel{
+    text-align: center;
+  
+  display: block;
+}
+.tableCont{
+    margin: 20px 0 20px 0;
+    padding: 15px;
+}
 .scoreBoard{
-   display:none;
+    margin-top: 50px; 
+   display:none; 
    text-align: left;
 }
-
+.btn{
+    margin-bottom: 7px;
+    min-width: 130px;
+}
 .navbar{
     margin-bottom: 100px;
 }
@@ -37,13 +66,26 @@ margin: 15px;
 }
 .timerPanel{
     font-family: monospace;
-  /* font-size: 120px; */
-  color: green;
+  font-size: larger;
+  font-weight: bold;
+  /* color: green; */
 
 
   /* Typography */
   text-align: center;
 
   /* Visual */
-  background: black;
+  /* background: black; */
+}
+
+#nextRoundCont{
+    display: none;
+     /* margin: 20px 0 20px 0; */
+     /* padding-left: 50px; */
+}
+
+
+.gameBoard{
+    margin-top: 50px;
+    margin-bottom: 100px;
 }
