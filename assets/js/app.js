@@ -14,6 +14,7 @@ var playerdbid = '';
 var playerNameGl = '';
 var seatoneUser = '';
 var seattwoUser = '';
+var seatRef;
 var connected = false;
 var userRef;
 var connectedRef;
@@ -102,7 +103,8 @@ function loadUserData() {
     if (id) {
         let name = localStorage.name;
         if (name) {
-            alert("Welcome back, " + name);
+        //    alert("Welcome back, " + name);
+
             $("#welcomeName").text(name + ", ")        
             popDb(name);            
             initializeSeats();            
@@ -147,7 +149,7 @@ function addNewUserToList() {
 
 
     } else {
-        alert('noname');
+     //   alert('noname');
     }
 
 }
@@ -175,10 +177,13 @@ function setConnection() {
 
         // If they are connected..
         if (snap.val()) {
+
+            if (userRef)
             userRef.update({ connected: true })
         }
     })
     userRef.onDisconnect().remove();
+    
 }
 
 function reBuildWatcherList() {
@@ -210,7 +215,7 @@ function checkSeat() {
               
     }
     else if (playerSitting) {
-        alert("Someone is already sitting there!");
+       // alert("Someone is already sitting there!");
     } else {
         console.log("Empty");
         sitInSeat(ele);
@@ -223,12 +228,12 @@ function sitInSeat(ele) {
 
     console.log(seatNum);
 
-    database.ref(`GameOne/TableOne/${seatNum}`).push({
+    seatRef =  database.ref(`GameOne/TableOne/${seatNum}`).push({
         id: playerdbid,
         name: playerNameGl,
         seat: seatNum
     });
-
+    seatRef.onDisconnect().remove();
 }
 function emptySeat(seat){
     console.log(seat);
@@ -242,7 +247,8 @@ function emptySeat(seat){
 
 //Became frustrated trying to watch for the dc event, decided to just wipe their profile eachtime.
 
-database.ref(`GameOne/users/`).on("child_removed", function (snapshot) {
+database.ref(`GameOne/users`).on("child_removed", function (snapshot) {
+    console.log('user-left');
     let userId = snapshot.val().key;
     let seat = snapshot.val().seat;
     if (seat != '' && seat != undefined){
@@ -287,6 +293,7 @@ function resetGameData(){
     clearInterval(timer);
     database.ref("GameOne/TableOne/GameData").update({
         started: false,
+        roundIP: false,
         round: 1,
         p1Choice:'',
         p2Choice: '',
@@ -294,8 +301,6 @@ function resetGameData(){
         p2score: 0
     })
     round = 1;
-    gameIP = false;
-    roundIP = false;
     $("#gameStatus").text("Waiting for Players");
     // $(".scoreBoard").css("display", 'none');
     
@@ -304,7 +309,30 @@ function resetGameData(){
 function initializeSeats() {
 
     $(".playerSeat").css("display", "block");
+//     database.ref(`GameOne/SeatOne`).once('value', function (snapshot) {
+// if (snapshot.exists()){
+// let userOne = snapshot.val().id;
+// database.ref(`GameOne/users}`).once('value', function (snapshot) {
+// if (snapshot.hasChild(userOne)){
 
+// } else {
+// database.ref("GameOne/SeatOne").remove();
+// }
+// })
+// }
+//     })
+//     database.ref(`GameOne/SeatTwo`).once('value', function (snapshot) {
+//         if (snapshot.exists()){
+//             let userTwo = snapshot.val().id;     
+//             database.ref(`GameOne/users/${userTwo}`).once('value', function (snapshot) {
+//                 if (snapshot.exists()){
+                
+//                 } else {
+//                 database.ref("GameOne/SeatTwo").remove();
+//                 }
+//                 })
+//         }
+//             })
 }
 
 function timeConverter(t) {
@@ -353,9 +381,15 @@ $(document).ready(function () {
             } else if (seattwoUser != '' && seattwoUser != undefined && !gameIP){
                 startGame();
             }
-            database.ref(`GameOne/users/${sitterId}`).update({
-                seat: "SeatOne"
-            })
+            database.ref(`GameOne/users/${sitterId}`).once('value', function (snapshot) {
+                if (snapshot.exists()){
+                    database.ref(`GameOne/users/${sitterId}`).update({
+                        seat: "SeatOne"
+                    })
+                }
+                });
+        
+           
         }
 
     })
@@ -374,9 +408,13 @@ $(document).ready(function () {
             } else if (seatoneUser != '' && seatoneUser != undefined && !gameIP){
                 startGame();
             }
-            database.ref(`GameOne/users/${sitterId}`).update({
-                seat: "SeatTwo"
-            })
+            database.ref(`GameOne/users/${sitterId}`).once('value', function (snapshot) {
+                if (snapshot.exists()){
+                    database.ref(`GameOne/users/${sitterId}`).update({
+                        seat: "SeatTwo"
+                    })
+                }
+                });
         }
 
     })
