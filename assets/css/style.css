@@ -1,5 +1,6 @@
 #main-nav{
-    height: 100px;
+    height: 50px;
+    
 }
 
 .tableCont,.watcherCont{
@@ -14,4 +15,35 @@ border: solid 1px black;
 
 .row{
 margin: 15px;
+}
+
+.statCont{
+    text-align: center;
+}
+.scoreBoard{
+   display:none;
+   text-align: left;
+}
+
+.navbar{
+    margin-bottom: 100px;
+}
+
+.headerText{
+    margin-left: 50px;
+}
+.watcherCont{
+    padding: 0 0 5px 15px;
+}
+.timerPanel{
+    font-family: monospace;
+  /* font-size: 120px; */
+  color: green;
+
+
+  /* Typography */
+  text-align: center;
+
+  /* Visual */
+  background: black;
 }
