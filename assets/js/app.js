@@ -426,6 +426,8 @@ database.ref("GameOne/TableOne/SeatTwo").on("child_removed", function (snapshot)
 function resetGameData(){
     clearInterval(timer);
     clearInterval(nextTimer);
+    $(".buttonPanel").css("display", "none");
+    $(".scoreBoard").css("display", "none");
     database.ref("GameOne/TableOne/GameData").update({
         started: false,
         roundIP: false,
