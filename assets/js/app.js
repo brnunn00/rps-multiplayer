@@ -32,6 +32,7 @@ var roundIP = false;
 
 
 function startGame(){
+    console.log("Starting Game");
     $("#gameStatus").text("Time to Play ROCK PAPER SCISSORS!!!");
     if (isPlaying){
         $('.buttonPanel').css("display", 'block');
@@ -56,6 +57,7 @@ timer = setInterval(count, 1000);
 
 function count(){
     time--;
+    
     if (roundIP){
     let res = timeConverter(time);
     $('.timerPanel').text(res);
@@ -76,13 +78,14 @@ function endRound(){
     clearInterval(timer);
     
     // time = roundTime;
-    if (round == 5){
+    if (round >= 5){
         endGame();
     } else {
-        evalOutcome('Time Up');
-        $("#nextRoundTimer").text(timeConverter(5))
+
+        evalOutcome();
+        $("#nextRoundTimer").text(timeConverter(10))
         $("#nextRoundCont").css("display","block");
-        time = 5;
+        time = 10;
         nextTimer  = setInterval(count, 1000);
     }
 
@@ -109,33 +112,53 @@ function subChoice(){
     }
 
 }
-function evalOutcome(src, p1c, p2c){
+function evalOutcome(){
+ 
     database.ref('GameOne/TableOne/GameData').once("value",  function (snapshot) {
         let winner = '';
-    if (src == 'db'){
+      let p1c = snapshot.val().p1Choice;
+      let p2c = snapshot.val().p2Choice;
+      let p1score = snapshot.val().p1score;
+      let p2score = snapshot.val().p2score;
+      let ties = snapshot.val().ties;
+        $("#p1Choice").text(p1c);
+        $("#p2Choice").text(p2c);
     if (p1c == undefined && p2c != undefined){
-
+        winner = "p2";
     } else if (p1c != undefined && p2c == undefined){
-
+        winner = "p1";
+    } else if (p1c === p2c){
+            winner = 'tie';
+            
     } else {
-        if (p1c == "rock" ){
-
-        } else if (p1c == "paper"){
-
-        } else {
-
-        }
-
-
+        if ((p1c == "rock" && p2c =="paper") || (p1c == "paper" && p2c == "rock") ||(p1c == "scissors" && p2c == "paper")) {
+            winner = "p1";
+        }else {
+            winner = 'p2';
+        }       
     }
+
+    if (winner == "p1"){
+        p1score++;
+    } else if (winner =="p2"){
+        p2score++;
     } else {
-
+        ties++;
     }
+        database.ref("GameOne/TableOne/GameData").update({
+            p1score:p1score,
+            p1Choice: '',
+            p2Choice: '',
+            p2score: p2score,
+            ties:ties,
+            Winner: winner,
+            roundIP: false
+        })
+
+   
     })
 }
-function showChoices(){
 
-}
 
 function nextRound(){
     if (isPlaying){
@@ -144,8 +167,10 @@ function nextRound(){
     }
     clearInterval(nextTimer);
     roundIP = true;
+    $("#roundOutcome").css("display", "none" )
     $("#nextRoundCont").css("display","none");
-    
+    $("#p1Choice").text("Waiting for Input");
+$("#p2Choice").text("Waiting for Input");
     round++;   
     database.ref("GameOne/TableOne/GameData").update({
     round: round,
@@ -158,6 +183,7 @@ function nextRound(){
 function endGame(){
 gameIP = false;
 roundIP = false;
+resetGameData();
 }
 function loadUserData() {
     let id = localStorage.userId;
@@ -328,10 +354,12 @@ database.ref(`GameOne/users`).on("child_removed", function (snapshot) {
 
 
 database.ref("GameOne/TableOne/GameData").on("value", function (snapshot) {
+    if (snapshot.val().roundIP){
  let vals = snapshot.val();
  console.log(vals.round);   
  if (vals.p1Choice != '' && vals.p2Choice != ''){
-    evalOutcome("db",vals.p1Choice, vals.p2Choice);
+     clearInterval(timer);
+     endRound();   
     
 } else if (vals.p1Choice =='' && vals.p2Choice == ''){
     $("#p1Choice").text("Waiting for Input");
@@ -351,10 +379,28 @@ database.ref("GameOne/TableOne/GameData").on("value", function (snapshot) {
     $("#p2Choice").text("Choice Submitted! Waiting for Player 1")
  }
 }
+}
 
+} else if (snapshot.val().started) {
+    let winner = snapshot.val().Winner;
+    if (winner == "p1"){
+        winner = "Player One Wins!"
+    } else if (winner == "p2"){
+        winner = "Player Two Wins!"
+    } else{
+        winner = "TIE!"
+    }
+    $("#roundOutcome").css("display", "block" )
+    $("#roundOutcome").text("ROUND OVER: "+ winner);
+     $("#roundCount").text(snapshot.val().round);
+    $("#p1Score").text(snapshot.val().p1score);
+    $("#p2Score").text(snapshot.val().p2score);
+} else {
+    $("#roundOutcome").css("display", "none" )
 
 }
 })
+
 database.ref("GameOne/TableOne/SeatOne").on("child_removed", function (snapshot) {
     let ele = $("#p1t1");
     ele.text("Click to Join");
@@ -379,9 +425,12 @@ database.ref("GameOne/TableOne/SeatTwo").on("child_removed", function (snapshot)
 
 function resetGameData(){
     clearInterval(timer);
+    clearInterval(nextTimer);
     database.ref("GameOne/TableOne/GameData").update({
         started: false,
         roundIP: false,
+        Winner: '',
+        ties: 0,
         round: 1,
         p1Choice:'',
         p2Choice: '',
