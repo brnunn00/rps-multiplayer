@@ -12,7 +12,9 @@ var database = firebase.database();
 //globals
 var playerdbid = '';
 var playerNameGl = '';
+var isPlaying = false;
 var seatoneUser = '';
+var inSeat = '';
 var seattwoUser = '';
 var seatRef;
 var connected = false;
@@ -24,13 +26,18 @@ var round = 1;
 var time =0;
 var nextRoundTime = 0;
 var gameRef;
-var roundTime = 5;
+var roundTime = 15;
 var gameIP = false;
 var roundIP = false;
 
 
 function startGame(){
     $("#gameStatus").text("Time to Play ROCK PAPER SCISSORS!!!");
+    if (isPlaying){
+        $('.buttonPanel').css("display", 'block');
+    } else {
+        $(".resultPanel").css("display", "block");
+    }
     gameIP = true;
     roundIP = true;
 time = roundTime;
@@ -72,6 +79,7 @@ function endRound(){
     if (round == 5){
         endGame();
     } else {
+        evalOutcome('Time Up');
         $("#nextRoundTimer").text(timeConverter(5))
         $("#nextRoundCont").css("display","block");
         time = 5;
@@ -80,7 +88,60 @@ function endRound(){
 
 }
 
+function subChoice(){
+    if (isPlaying){
+        
+        var val = $(this).attr("id");
+        console.log(inSeat);
+        if (inSeat == "SeatOne"){
+            database.ref("GameOne/TableOne/GameData").update({
+                p1Choice: val
+            })
+        } else if (inSeat =="SeatTwo"){
+            database.ref("GameOne/TableOne/GameData").update({
+                p2Choice: val
+            })
+        }
+
+        $(".buttonPanel").css("display", "none");
+        $(".resultPanel").css("display", "inline-block");
+
+    }
+
+}
+function evalOutcome(src, p1c, p2c){
+    database.ref('GameOne/TableOne/GameData').once("value",  function (snapshot) {
+        let winner = '';
+    if (src == 'db'){
+    if (p1c == undefined && p2c != undefined){
+
+    } else if (p1c != undefined && p2c == undefined){
+
+    } else {
+        if (p1c == "rock" ){
+
+        } else if (p1c == "paper"){
+
+        } else {
+
+        }
+
+
+    }
+    } else {
+
+    }
+    })
+}
+function showChoices(){
+
+}
+
 function nextRound(){
+    if (isPlaying){
+        $(".buttonPanel").css("display", "block");
+        $(".resultPanel").css("display", "none");
+    }
     clearInterval(nextTimer);
     roundIP = true;
     $("#nextRoundCont").css("display","none");
@@ -170,6 +231,8 @@ function popDb(name) {
     setConnection();
 
 }
+
+
 function setConnection() {
     userRef = database.ref(`GameOne/users/${playerdbid}`);
     connectedRef = database.ref(".info/connected");
@@ -212,6 +275,9 @@ function checkSeat() {
     if (playerSitting == playerdbid) {
         let seatNum = ele.attr("data-seatnum");
         emptySeat(seatNum);
+        isPlaying = false;
+    inSeat = '';
+
               
     }
     else if (playerSitting) {
@@ -224,8 +290,9 @@ function checkSeat() {
 
 function sitInSeat(ele) {
     console.log(ele);
+    isPlaying = true;
     let seatNum = ele.data("seatnum");
-
+    inSeat = seatNum;
     console.log(seatNum);
 
     seatRef =  database.ref(`GameOne/TableOne/${seatNum}`).push({
@@ -263,9 +330,30 @@ database.ref(`GameOne/users`).on("child_removed", function (snapshot) {
 database.ref("GameOne/TableOne/GameData").on("value", function (snapshot) {
  let vals = snapshot.val();
  console.log(vals.round);   
- $("#roundCount").text(vals.round);
- $("#p1Score").text(vals.p1score);
- $("#p2Score").text(vals.p2score);
+ if (vals.p1Choice != '' && vals.p2Choice != ''){
+    evalOutcome("db",vals.p1Choice, vals.p2Choice);
+    
+} else if (vals.p1Choice =='' && vals.p2Choice == ''){
+    $("#p1Choice").text("Waiting for Input");
+    $("#p2Choice").text("Waiting for Input");
+} else{
+ if (vals.p1Choice != '' ){
+     if (isPlaying && inSeat == "SeatOne"){
+        $("#p1Choice").text("You Chose: " +vals.p1Choice)
+     }else{
+    $("#p1Choice").text("Choice Submitted! Waiting for Player 2")
+     }
+ } 
+ if (vals.p2Choice != ''){
+    if (isPlaying && inSeat == "SeatTwo"){
+        $("#p2Choice").text("You Chose: " +vals.p2Choice)
+     }else{
+    $("#p2Choice").text("Choice Submitted! Waiting for Player 1")
+ }
+}
+
+
+}
 })
 database.ref("GameOne/TableOne/SeatOne").on("child_removed", function (snapshot) {
     let ele = $("#p1t1");
@@ -309,30 +397,7 @@ function resetGameData(){
 function initializeSeats() {
 
     $(".playerSeat").css("display", "block");
-//     database.ref(`GameOne/SeatOne`).once('value', function (snapshot) {
-// if (snapshot.exists()){
-// let userOne = snapshot.val().id;
-// database.ref(`GameOne/users}`).once('value', function (snapshot) {
-// if (snapshot.hasChild(userOne)){
 
-// } else {
-// database.ref("GameOne/SeatOne").remove();
-// }
-// })
-// }
-//     })
-//     database.ref(`GameOne/SeatTwo`).once('value', function (snapshot) {
-//         if (snapshot.exists()){
-//             let userTwo = snapshot.val().id;     
-//             database.ref(`GameOne/users/${userTwo}`).once('value', function (snapshot) {
-//                 if (snapshot.exists()){
-                
-//                 } else {
-//                 database.ref("GameOne/SeatTwo").remove();
-//                 }
-//                 })
-//         }
-//             })
 }
 
 function timeConverter(t) {
@@ -366,11 +431,14 @@ $(document).ready(function () {
     database.ref("GameOne/TableOne/SeatOne").on('child_added', function (snapshot) {
         if (snapshot.val().name != undefined) {
             let sitterId = snapshot.val().id;
-            // console.log(snapshot.val())
-            $("#p1t1").text(snapshot.val().name);
-            // console.log(snapshot.val().id);
+           
+            $("#p1t1").text(snapshot.val().name);           
             $("#p1t1").attr("data-playerid", sitterId);
             seatoneUser = sitterId;
+            if (seatoneUser == playerdbid){
+                isPlaying = true;
+                
+            }
             if (seattwoUser == seatoneUser) {
                 database.ref("GameOne/TableOne").child("SeatTwo").remove();
                 let emptySeat = $("#p2t1")
@@ -399,6 +467,10 @@ $(document).ready(function () {
             $("#p2t1").text(snapshot.val().name);
             $("#p2t1").attr("data-playerid", sitterId);
             seattwoUser = sitterId;
+            if (seattwoUser == playerdbid){
+                isPlaying = true;
+                
+            }
             if (seattwoUser == seatoneUser) {
                 database.ref("GameOne/TableOne").child("SeatOne").remove();
                 let emptySeat = $("#p1t1")
@@ -422,4 +494,5 @@ $(document).ready(function () {
 
     $('#nameSub').on('click', addNewUserToList);
     $(document.body).on('click', ".playerSeat", checkSeat);
+    $(document.body).on('click', ".rpsB", subChoice);
 });

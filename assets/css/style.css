@@ -2,9 +2,13 @@
     height: 50px;
     
 }
-
+.resultPanel{
+    display: none;
+    width: 100%;
+}
 .tableCont,.watcherCont{
 height: 100%;
+min-height: 35%;
 width: 100%;
 border: solid 1px black;
 }
@@ -20,7 +24,13 @@ font-weight: bold;
     height: 100%;
 
 }
-
+.pPanel{
+    width: 100%;
+    height: 100%;
+    min-height: 50px;
+    border: solid 1px black;
+    text-align: center;
+}
 .statusTopCont{
     margin-bottom: 50px;
 }
@@ -39,7 +49,7 @@ margin: 15px;
 .buttonPanel{
     text-align: center;
   
-  display: block;
+  display: none;
 }
 .tableCont{
     margin: 20px 0 20px 0;
