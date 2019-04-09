@@ -24,7 +24,7 @@ font-weight: bold;
     height: 100%;
 
 }
-.roundOutcome{
+#roundOutcome{
     display: none;
 }
 .pPanel{
@@ -59,9 +59,9 @@ margin: 15px;
     padding: 15px;
 }
 .scoreBoard{
-    margin-top: 50px; 
+    margin-top: 30px; 
    display:none; 
-   text-align: left;
+   text-align: center;
 }
 .btn{
     margin-bottom: 7px;

@@ -23,84 +23,82 @@ var connectedRef;
 var timer;
 var nextTimer;
 var round = 1;
-var time =0;
-var nextRoundTime = 0;
+var time = 0;
+var nextRoundTime = 5;
 var gameRef;
 var roundTime = 15;
 var gameIP = false;
 var roundIP = false;
 
 
-function startGame(){
+function startGame() {
     console.log("Starting Game");
+    $("#roundOutcome").css("display", "none")
+    $("#roundOutcome").css("display", "resultPanel")
     $("#gameStatus").text("Time to Play ROCK PAPER SCISSORS!!!");
-    if (isPlaying){
+    if (isPlaying) {
         $('.buttonPanel').css("display", 'block');
     } else {
         $(".resultPanel").css("display", "block");
     }
     gameIP = true;
     roundIP = true;
-time = roundTime;
-gameRef  = database.ref("GameOne/TableOne/GameData").update({
-started:true,
-roundIP: true,
-round: 1,
-p1score:0,
-p2score: 0,
-p1Choice:'',
-p2Choice:''
-})
-$(".scoreBoard").css('display', 'block');
-timer = setInterval(count, 1000);
+    time = roundTime;
+    gameRef = database.ref("GameOne/TableOne/GameData").update({
+        started: true,
+        roundIP: true
+    })
+    $(".scoreBoard").css('display', 'block');
+    timer = setInterval(count, 1000);
 }
 
-function count(){
-    time--;
-    
-    if (roundIP){
-    let res = timeConverter(time);
-    $('.timerPanel').text(res);
-    if (time == 0)
-    endRound();
+function count() {
   
-} else {
-    let res = timeConverter(time);
-    $('#nextRoundTimer').text(res);
-    if (time == 0){
-        nextRound();
+    time--;
+
+    if (roundIP) {
+        let res = timeConverter(time);
+        $('.timerPanel').text(res);
+        if (time == 0)
+            endRound();
+
+    } else {
+        let res = timeConverter(time);
+        $('#nextRoundTimer').text(res);
+        if (time == 0) {
+            nextRound();
+        }
     }
 }
-}
 
-function endRound(){
+function endRound() {
     roundIP = false;
     clearInterval(timer);
-    
+    evalOutcome();
     // time = roundTime;
-    if (round >= 5){
+    if (round >= 5) {
         endGame();
     } else {
 
-        evalOutcome();
-        $("#nextRoundTimer").text(timeConverter(10))
-        $("#nextRoundCont").css("display","block");
-        time = 10;
-        nextTimer  = setInterval(count, 1000);
+        
+        $("#nextRoundTimer").text(timeConverter(nextRoundTime))
+        $("#nextRoundCont").css("display", "block");
+        time = nextRoundTime;
+        nextTimer = setInterval(count, 1000);
     }
 
 }
 
-function subChoice(){
-    if (isPlaying){
-        
+function subChoice() {
+    if (isPlaying) {
+
         var val = $(this).attr("id");
         console.log(inSeat);
-        if (inSeat == "SeatOne"){
+        if (inSeat == "SeatOne") {
             database.ref("GameOne/TableOne/GameData").update({
                 p1Choice: val
             })
-        } else if (inSeat =="SeatTwo"){
+        } else if (inSeat == "SeatTwo") {
             database.ref("GameOne/TableOne/GameData").update({
                 p2Choice: val
             })
@@ -112,89 +110,95 @@ function subChoice(){
     }
 
 }
-function evalOutcome(){
- 
-    database.ref('GameOne/TableOne/GameData').once("value",  function (snapshot) {
+function evalOutcome() {
+
+    database.ref('GameOne/TableOne/GameData').once("value", function (snapshot) {
         let winner = '';
-      let p1c = snapshot.val().p1Choice;
-      let p2c = snapshot.val().p2Choice;
-      let p1score = snapshot.val().p1score;
-      let p2score = snapshot.val().p2score;
-      let ties = snapshot.val().ties;
+        let p1c = snapshot.val().p1Choice;
+        let p2c = snapshot.val().p2Choice;
+        let p1score = snapshot.val().p1score;
+        let p2score = snapshot.val().p2score;
+        let tcount = snapshot.val().ties;
         $("#p1Choice").text(p1c);
         $("#p2Choice").text(p2c);
-    if (p1c == undefined && p2c != undefined){
-        winner = "p2";
-    } else if (p1c != undefined && p2c == undefined){
-        winner = "p1";
-    } else if (p1c === p2c){
-            winner = 'tie';
-            
-    } else {
-        if ((p1c == "rock" && p2c =="paper") || (p1c == "paper" && p2c == "rock") ||(p1c == "scissors" && p2c == "paper")) {
+        if (p1c == undefined && p2c != undefined) {
+            winner = "p2";
+        } else if (p1c != undefined && p2c == undefined) {
             winner = "p1";
-        }else {
-            winner = 'p2';
-        }       
-    }
+        } else if (p1c == p2c) {
+            winner = 'tie';
 
-    if (winner == "p1"){
-        p1score++;
-    } else if (winner =="p2"){
-        p2score++;
-    } else {
-        ties++;
-    }
+        } else {
+            if ((p1c == "rock" && p2c == "scissors") || (p1c == "paper" && p2c == "rock") || (p1c == "scissors" && p2c == "paper")) {
+                winner = "p1";
+            } else {
+                winner = 'p2';
+            }
+        }
+
+        if (winner == "p1") {
+            p1score++;
+        } else if (winner == "p2") {
+            p2score++;
+        } else {
+            tcount++;
+        }
+        if (isPlaying){
         database.ref("GameOne/TableOne/GameData").update({
-            p1score:p1score,
+            p1score: p1score,
             p1Choice: '',
             p2Choice: '',
             p2score: p2score,
-            ties:ties,
+            ties: tcount,
             Winner: winner,
             roundIP: false
         })
+    }
 
-   
+
     })
 }
 
 
-function nextRound(){
-    if (isPlaying){
+function nextRound() {
+    if (isPlaying) {
         $(".buttonPanel").css("display", "block");
         $(".resultPanel").css("display", "none");
     }
     clearInterval(nextTimer);
     roundIP = true;
-    $("#roundOutcome").css("display", "none" )
-    $("#nextRoundCont").css("display","none");
+    $("#roundOutcome").css("display", "none")
+    $("#nextRoundCont").css("display", "none");
     $("#p1Choice").text("Waiting for Input");
-$("#p2Choice").text("Waiting for Input");
-    round++;   
+    $("#p2Choice").text("Waiting for Input");
+    round++;
     database.ref("GameOne/TableOne/GameData").update({
-    round: round,
-    roundIP: true
+        p1Choice: '',
+        p2Choice: '',
+        round: round,
+        roundIP: true
     });
-    time=roundTime;
+    time = roundTime;
     $(".timerPanel").text(timeConverter(time));
     timer = setInterval(count, 1000);
 }
-function endGame(){
-gameIP = false;
-roundIP = false;
-resetGameData();
+function endGame() {
+    gameIP = false;
+    roundIP = false;
+    $("#roundOutcome").css("display", "block")
+    $("#roundOutcome").text("Game Is OVER");
+    resetGameData();
 }
 function loadUserData() {
     let id = localStorage.userId;
     if (id) {
         let name = localStorage.name;
         if (name) {
-        //    alert("Welcome back, " + name);
+            //    alert("Welcome back, " + name);
 
-            $("#welcomeName").text(name + ", ")        
-            popDb(name);            
-            initializeSeats();            
+            $("#welcomeName").text(name + ", ")
+            popDb(name);
+            initializeSeats();
             $("#nameSub").css("display", "none");
             $("#nameEnter").css("display", "none");
             $("#nameLab").css("display", "none");
@@ -236,7 +240,7 @@ function addNewUserToList() {
 
 
     } else {
-     //   alert('noname');
+        //   alert('noname');
     }
 
 }
@@ -268,11 +272,11 @@ function setConnection() {
         if (snap.val()) {
 
             if (userRef)
-            userRef.update({ connected: true })
+                userRef.update({ connected: true })
         }
     })
     userRef.onDisconnect().remove();
-    
+
 }
 
 function reBuildWatcherList() {
@@ -302,12 +306,12 @@ function checkSeat() {
         let seatNum = ele.attr("data-seatnum");
         emptySeat(seatNum);
         isPlaying = false;
-    inSeat = '';
+        inSeat = '';
 
-              
+
     }
     else if (playerSitting) {
-       // alert("Someone is already sitting there!");
+        // alert("Someone is already sitting there!");
     } else {
         console.log("Empty");
         sitInSeat(ele);
@@ -321,21 +325,21 @@ function sitInSeat(ele) {
     inSeat = seatNum;
     console.log(seatNum);
 
-    seatRef =  database.ref(`GameOne/TableOne/${seatNum}`).push({
+    seatRef = database.ref(`GameOne/TableOne/${seatNum}`).push({
         id: playerdbid,
         name: playerNameGl,
         seat: seatNum
     });
     seatRef.onDisconnect().remove();
 }
-function emptySeat(seat){
+function emptySeat(seat) {
     console.log(seat);
- database.ref(`GameOne/TableOne/${seat}`).remove();
- if (seat == "SeatOne") {
-    seatoneUser = ""
-} else {
-    seattwoUser = ""
-}
+    database.ref(`GameOne/TableOne/${seat}`).remove();
+    if (seat == "SeatOne") {
+        seatoneUser = ""
+    } else {
+        seattwoUser = ""
+    }
 }
 
 //Became frustrated trying to watch for the dc event, decided to just wipe their profile eachtime.
@@ -344,61 +348,61 @@ database.ref(`GameOne/users`).on("child_removed", function (snapshot) {
     console.log('user-left');
     let userId = snapshot.val().key;
     let seat = snapshot.val().seat;
-    if (seat != '' && seat != undefined){
+    if (seat != '' && seat != undefined) {
         emptySeat(seat);
     }
-    
+
 
     reBuildWatcherList();
 })
 
 
 database.ref("GameOne/TableOne/GameData").on("value", function (snapshot) {
-    if (snapshot.val().roundIP){
- let vals = snapshot.val();
- console.log(vals.round);   
- if (vals.p1Choice != '' && vals.p2Choice != ''){
-     clearInterval(timer);
-     endRound();   
-    
-} else if (vals.p1Choice =='' && vals.p2Choice == ''){
-    $("#p1Choice").text("Waiting for Input");
-    $("#p2Choice").text("Waiting for Input");
-} else{
- if (vals.p1Choice != '' ){
-     if (isPlaying && inSeat == "SeatOne"){
-        $("#p1Choice").text("You Chose: " +vals.p1Choice)
-     }else{
-    $("#p1Choice").text("Choice Submitted! Waiting for Player 2")
-     }
- } 
- if (vals.p2Choice != ''){
-    if (isPlaying && inSeat == "SeatTwo"){
-        $("#p2Choice").text("You Chose: " +vals.p2Choice)
-     }else{
-    $("#p2Choice").text("Choice Submitted! Waiting for Player 1")
- }
-}
-}
+    if (snapshot.val().roundIP) {
+        let vals = snapshot.val();
+        console.log(vals.round);
+        if (vals.p1Choice != '' && vals.p2Choice != '') {
+            clearInterval(timer);
+            endRound();
 
-} else if (snapshot.val().started) {
-    let winner = snapshot.val().Winner;
-    if (winner == "p1"){
-        winner = "Player One Wins!"
-    } else if (winner == "p2"){
-        winner = "Player Two Wins!"
-    } else{
-        winner = "TIE!"
-    }
-    $("#roundOutcome").css("display", "block" )
-    $("#roundOutcome").text("ROUND OVER: "+ winner);
-     $("#roundCount").text(snapshot.val().round);
-    $("#p1Score").text(snapshot.val().p1score);
-    $("#p2Score").text(snapshot.val().p2score);
-} else {
-    $("#roundOutcome").css("display", "none" )
+        } else if (vals.p1Choice == '' && vals.p2Choice == '') {
+            $("#p1Choice").text("Waiting for Input");
+            $("#p2Choice").text("Waiting for Input");
+        } else {
+            if (vals.p1Choice != '') {
+                if (isPlaying && inSeat == "SeatOne") {
+                    $("#p1Choice").text("You Chose: " + vals.p1Choice)
+                } else {
+                    $("#p1Choice").text("Choice Submitted! Waiting for Player 2")
+                }
+            }
+            if (vals.p2Choice != '') {
+                if (isPlaying && inSeat == "SeatTwo") {
+                    $("#p2Choice").text("You Chose: " + vals.p2Choice)
+                } else {
+                    $("#p2Choice").text("Choice Submitted! Waiting for Player 1")
+                }
+            }
+        }
 
-}
+    } else  {
+        let winner = snapshot.val().Winner;
+        if (winner == "p1") {
+            winner = "Player One Wins!"
+        } else if (winner == "p2") {
+            winner = "Player Two Wins!"
+        } else {
+            winner = "TIE!"
+        }
+        if (snapshot.val().started){
+        $("#roundOutcome").css("display", "block")
+        $("#roundOutcome").text("ROUND OVER: " + winner);
+        }
+        $("#roundCount").text(snapshot.val().round);
+        $("#p1Score").text(snapshot.val().p1score);
+        $("#p2Score").text(snapshot.val().p2score);
+        $("#ties").text(snapshot.val().ties);
+    } 
 })
 
 database.ref("GameOne/TableOne/SeatOne").on("child_removed", function (snapshot) {
@@ -406,9 +410,9 @@ database.ref("GameOne/TableOne/SeatOne").on("child_removed", function (snapshot)
     ele.text("Click to Join");
     ele.attr("data-playerid", '');
     seatoneUser = '';
-    if (gameIP){
+    if (gameIP) {
         endGame();
-    resetGameData();
+        resetGameData();
     }
 })
 database.ref("GameOne/TableOne/SeatTwo").on("child_removed", function (snapshot) {
@@ -417,32 +421,32 @@ database.ref("GameOne/TableOne/SeatTwo").on("child_removed", function (snapshot)
     ele.text("Click to Join");
     ele.attr("data-playerid", '');
     seattwoUser = '';
-    if (gameIP){
+    if (gameIP) {
         endGame();
-    resetGameData();
+        resetGameData();
     }
 })
 
-function resetGameData(){
+function resetGameData() {
     clearInterval(timer);
     clearInterval(nextTimer);
     $(".buttonPanel").css("display", "none");
-    $(".scoreBoard").css("display", "none");
-    database.ref("GameOne/TableOne/GameData").update({
+    // $(".scoreBoard").css("display", "none");
+    database.ref("GameOne/TableOne/GameData").set({
         started: false,
         roundIP: false,
         Winner: '',
         ties: 0,
         round: 1,
-        p1Choice:'',
+        p1Choice: '',
         p2Choice: '',
-        p1score:0,
+        p1score: 0,
         p2score: 0
     })
     round = 1;
     $("#gameStatus").text("Waiting for Players");
     // $(".scoreBoard").css("display", 'none');
-    
+
 }
 
 function initializeSeats() {
@@ -456,22 +460,22 @@ function timeConverter(t) {
     //  Takes the current time in seconds and convert it to minutes and seconds (mm:ss).
     var minutes = Math.floor(t / 60);
     var seconds = t - (minutes * 60);
-  
+
     if (seconds < 10) {
-      seconds = "0" + seconds;
+        seconds = "0" + seconds;
     }
-  
+
     if (minutes === 0) {
-      minutes = "00";
+        minutes = "00";
     }
-  
+
     else if (minutes < 10) {
-      minutes = "0" + minutes;
+        minutes = "0" + minutes;
     }
-  
+
     return minutes + ":" + seconds;
-  }
-  
+}
+
 $(document).ready(function () {
 
     //loadWatchers();
@@ -482,13 +486,13 @@ $(document).ready(function () {
     database.ref("GameOne/TableOne/SeatOne").on('child_added', function (snapshot) {
         if (snapshot.val().name != undefined) {
             let sitterId = snapshot.val().id;
-           
-            $("#p1t1").text(snapshot.val().name);           
+
+            $("#p1t1").text("Player One: " + snapshot.val().name);
             $("#p1t1").attr("data-playerid", sitterId);
             seatoneUser = sitterId;
-            if (seatoneUser == playerdbid){
+            if (seatoneUser == playerdbid) {
                 isPlaying = true;
-                
+
             }
             if (seattwoUser == seatoneUser) {
                 database.ref("GameOne/TableOne").child("SeatTwo").remove();
@@ -497,30 +501,30 @@ $(document).ready(function () {
                 emptySeat.attr("data-playerid", '');
                 seattwoUser = ''
 
-            } else if (seattwoUser != '' && seattwoUser != undefined && !gameIP){
+            } else if (seattwoUser != '' && seattwoUser != undefined && !gameIP) {
                 startGame();
             }
             database.ref(`GameOne/users/${sitterId}`).once('value', function (snapshot) {
-                if (snapshot.exists()){
+                if (snapshot.exists()) {
                     database.ref(`GameOne/users/${sitterId}`).update({
                         seat: "SeatOne"
                     })
                 }
-                });
-        
-           
+            });
+
+
         }
 
     })
     database.ref("GameOne/TableOne/SeatTwo").on('child_added', function (snapshot) {
         if (snapshot.val().name != undefined) {
             let sitterId = snapshot.val().id;
-            $("#p2t1").text(snapshot.val().name);
+            $("#p2t1").text("Player Two: " + snapshot.val().name);
             $("#p2t1").attr("data-playerid", sitterId);
             seattwoUser = sitterId;
-            if (seattwoUser == playerdbid){
+            if (seattwoUser == playerdbid) {
                 isPlaying = true;
-                
+
             }
             if (seattwoUser == seatoneUser) {
                 database.ref("GameOne/TableOne").child("SeatOne").remove();
@@ -528,16 +532,16 @@ $(document).ready(function () {
                 emptySeat.text("Click to Join");
                 emptySeat.attr("data-playerid", '');
                 seatoneUser = '';
-            } else if (seatoneUser != '' && seatoneUser != undefined && !gameIP){
+            } else if (seatoneUser != '' && seatoneUser != undefined && !gameIP) {
                 startGame();
             }
             database.ref(`GameOne/users/${sitterId}`).once('value', function (snapshot) {
-                if (snapshot.exists()){
+                if (snapshot.exists()) {
                     database.ref(`GameOne/users/${sitterId}`).update({
                         seat: "SeatTwo"
                     })
                 }
-                });
+            });
         }
 
     })
